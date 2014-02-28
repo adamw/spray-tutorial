@@ -4,7 +4,7 @@ import spray.http._
 import spray.client.pipelining._
 import akka.actor.ActorSystem
 
-object FishClient extends App {
+object ClientComplete extends App {
   implicit val system = ActorSystem()
   import system.dispatcher
 
