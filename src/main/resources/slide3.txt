@@ -1,0 +1,7 @@
+Plan:
+
+* code a REST service
+
+* code a test
+
+* code a client

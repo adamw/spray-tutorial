@@ -1,0 +1,8 @@
+* What is Spray.IO?
+
+  "Open source toolkit for building REST/HTTP-based
+   integration layers on top of Scala and Akka"
+
+* Elegant & high-performance HTTP, using Actors
+
+* "Acquired" by Akka

@@ -8,7 +8,7 @@ class Step4CompleteTest extends FlatSpec with ShouldMatchers
   with ScalatestRouteTest with Directives {
 
   it should "get the water level" in {
-    Get("/hello") ~> Step4Complete.fishRoutes ~> check {
+    Get("/hello") ~> Step4Complete.fishRoute ~> check {
       responseAs[String] should include ("aquarium")
     }
   }
