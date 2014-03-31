@@ -4,4 +4,4 @@ Plan:
 
 * code a test
 
-* code a client
+* (code a client)
