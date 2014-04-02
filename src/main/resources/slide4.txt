@@ -5,3 +5,5 @@ About me
 * open-source: Envers, ElasticMQ, MacWire, Veripacks
 
 * [blog](http://www.warski.org)
+
+* [twitter](@adamwarski)

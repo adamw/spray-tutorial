@@ -18,3 +18,5 @@
 * http://www.warski.org
 
 * https://github.com/adamw/spray-tutorial
+
+* @adamwarski
