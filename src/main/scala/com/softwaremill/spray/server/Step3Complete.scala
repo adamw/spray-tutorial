@@ -4,12 +4,12 @@ import akka.actor.ActorSystem
 import spray.routing._
 import com.softwaremill.spray._
 import spray.http.MediaTypes
-import com.softwaremill.spray.Tuna
+import com.softwaremill.spray.NeedlePrinter
 
 object Step3Complete extends App with SimpleRoutingApp {
   implicit val actorSystem = ActorSystem()
 
-  var plentyOfFish = Fish.someFish
+  var plentyOfPrinters = Printer.somePrinters
 
   def getJson(route: Route) = get {
     respondWithMediaType(MediaTypes.`application/json`) { route }
@@ -18,28 +18,28 @@ object Step3Complete extends App with SimpleRoutingApp {
   startServer(interface = "localhost", port = 8080) {
     get {
       path("hello") { ctx =>
-        ctx.complete("Here's the list of fish in the aquarium")
+        ctx.complete("Welcome to the Land of PrinTers (LPT)!")
       }
     } ~
     getJson {
       path("list" / "all") {
         complete {
-          Fish.toJson(plentyOfFish)
+          Printer.toJson(plentyOfPrinters)
         }
       }
     } ~
     getJson {
-      path("fish" / IntNumber / "details") { index =>
+      path("printer" / IntNumber / "details") { index =>
         complete {
-          Fish.toJson(plentyOfFish(index))
+          Printer.toJson(plentyOfPrinters(index))
         }
       }
     } ~
     post {
-      path("fish" / "add" / "tuna") {
-        parameters("ocean"?, "age".as[Int]) { (ocean, age) =>
-          val newTuna = Tuna(ocean.getOrElse("pacific"), age)
-          plentyOfFish = newTuna :: plentyOfFish
+      path("printer" / "add" / "needle") {
+        parameters("manufacturer"?, "pins".as[Int]) { (manufacturer, pins) =>
+          val newPrinter = NeedlePrinter(manufacturer.getOrElse("Epson"), pins)
+          plentyOfPrinters = newPrinter :: plentyOfPrinters
           complete {
             "OK"
           }

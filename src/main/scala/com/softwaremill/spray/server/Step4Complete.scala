@@ -7,46 +7,46 @@ import spray.http.MediaTypes
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
-import com.softwaremill.spray.Tuna
+import com.softwaremill.spray.NeedlePrinter
 
 object Step4Complete extends App with SimpleRoutingApp {
   implicit val actorSystem = ActorSystem()
 
-  var plentyOfFish = Fish.someFish
+  var plentyOfPrinters = Printer.somePrinters
   implicit val timeout = Timeout(1.second)
   import actorSystem.dispatcher
 
-  val waterLevelActor = actorSystem.actorOf(Props(new WaterLevelActor()))
+  val inkActor = actorSystem.actorOf(Props(new InkActor()))
 
   def getJson(route: Route) = get {
     respondWithMediaType(MediaTypes.`application/json`) { route }
   }
 
-  lazy val fishRoute = {
+  lazy val printerRoute = {
     get {
       path("hello") { ctx =>
-        ctx.complete("Here's the list of fish in the aquarium")
+        ctx.complete("Welcome to the Land of PrinTers (LPT)!")
       }
     } ~
     getJson {
       path("list" / "all") {
         complete {
-          Fish.toJson(plentyOfFish)
+          Printer.toJson(plentyOfPrinters)
         }
       }
     } ~
-      getJson {
-      path("fish" / IntNumber / "details") { index =>
+    getJson {
+      path("printer" / IntNumber / "details") { index =>
         complete {
-          Fish.toJson(plentyOfFish(index))
+          Printer.toJson(plentyOfPrinters(index))
         }
       }
     } ~
     post {
-      path("fish" / "add" / "tuna") {
-        parameters("ocean"?, "age".as[Int]) { (ocean, age) =>
-          val newTuna = Tuna(ocean.getOrElse("pacific"), age)
-          plentyOfFish = newTuna :: plentyOfFish
+      path("printer" / "add" / "needle") {
+        parameters("manufacturer"?, "pins".as[Int]) { (manufacturer, pins) =>
+          val newPrinter = NeedlePrinter(manufacturer.getOrElse("Epson"), pins)
+          plentyOfPrinters = newPrinter :: plentyOfPrinters
           complete {
             "OK"
           }
@@ -55,28 +55,28 @@ object Step4Complete extends App with SimpleRoutingApp {
     }
   }
 
-  lazy val waterRoute = {
+  lazy val supplyRoute = {
     get {
-      path("waterlevel") {
+      path("supply" / "ink") {
         complete {
-          (waterLevelActor ? GetWaterLevel).mapTo[Int]
-            .map(wl => s"The water level is $wl")
+          (inkActor ? GetInkSupply).mapTo[Int]
+            .map(s => s"The supply of the ink is $s")
         }
       }
     }
   }
 
   startServer(interface = "localhost", port = 8080) {
-    fishRoute ~ waterRoute
+    printerRoute ~ supplyRoute
   }
 
-  class WaterLevelActor extends Actor {
-    private val waterLevel = 10
+  class InkActor extends Actor {
+    private val inkSupply = 10
 
     override def receive = {
-      case GetWaterLevel => sender ! waterLevel
+      case GetInkSupply => sender ! inkSupply
     }
   }
 
-  object GetWaterLevel
+  object GetInkSupply
 }
