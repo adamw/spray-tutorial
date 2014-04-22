@@ -16,6 +16,7 @@ object Step4Complete extends App with SimpleRoutingApp {
   implicit val timeout = Timeout(1.second)
   import actorSystem.dispatcher
 
+  val helloActor = actorSystem.actorOf(Props(new HelloActor()))
   val inkActor = actorSystem.actorOf(Props(new InkActor()))
 
   def getJson(route: Route) = get {
@@ -25,7 +26,7 @@ object Step4Complete extends App with SimpleRoutingApp {
   lazy val printerRoute = {
     get {
       path("hello") { ctx =>
-        ctx.complete("Welcome to the Land of PrinTers (LPT)!")
+        helloActor ! ctx
       }
     } ~
     getJson {
@@ -68,6 +69,12 @@ object Step4Complete extends App with SimpleRoutingApp {
 
   startServer(interface = "localhost", port = 8080) {
     printerRoute ~ supplyRoute
+  }
+
+  class HelloActor extends Actor {
+    override def receive = {
+      case ctx: RequestContext => ctx.complete("Welcome to the Land of PrinTers (LPT)!")
+    }
   }
 
   class InkActor extends Actor {
