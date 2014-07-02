@@ -7,23 +7,22 @@ import spray.http.MediaTypes
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
-import com.softwaremill.spray.NeedlePrinter
 
 object Step4Complete extends App with SimpleRoutingApp {
-  implicit val actorSystem = ActorSystem()
+  implicit lazy val actorSystem = ActorSystem()
 
-  var plentyOfPrinters = Printer.somePrinters
+  var plentyOfDwarfs = Dwarf.someDwarfs
   implicit val timeout = Timeout(1.second)
   import actorSystem.dispatcher
 
-  val helloActor = actorSystem.actorOf(Props(new HelloActor()))
-  val inkActor = actorSystem.actorOf(Props(new InkActor()))
+  lazy val helloActor = actorSystem.actorOf(Props(new HelloActor()))
+  lazy val foodActor = actorSystem.actorOf(Props(new FoodActor()))
 
   def getJson(route: Route) = get {
     respondWithMediaType(MediaTypes.`application/json`) { route }
   }
 
-  lazy val printerRoute = {
+  lazy val dwarfRoute = {
     get {
       path("hello") { ctx =>
         helloActor ! ctx
@@ -32,22 +31,22 @@ object Step4Complete extends App with SimpleRoutingApp {
     getJson {
       path("list" / "all") {
         complete {
-          Printer.toJson(plentyOfPrinters)
+          Dwarf.toJson(plentyOfDwarfs)
         }
       }
     } ~
     getJson {
-      path("printer" / IntNumber / "details") { index =>
+      path("dwarf" / IntNumber / "details") { index =>
         complete {
-          Printer.toJson(plentyOfPrinters(index))
+          Dwarf.toJson(plentyOfDwarfs(index))
         }
       }
     } ~
     post {
-      path("printer" / "add" / "needle") {
-        parameters("manufacturer"?, "pins".as[Int]) { (manufacturer, pins) =>
-          val newPrinter = NeedlePrinter(manufacturer.getOrElse("Epson"), pins)
-          plentyOfPrinters = newPrinter :: plentyOfPrinters
+      path("dwarf" / "add" / "mining") {
+        parameters("mineral"?, "gramsPerHour".as[Int]) { (mineral, gramsPerHour) =>
+          val newDwarf = MiningDwarf(mineral.getOrElse("silver"), gramsPerHour)
+          plentyOfDwarfs = newDwarf :: plentyOfDwarfs
           complete {
             "OK"
           }
@@ -58,32 +57,32 @@ object Step4Complete extends App with SimpleRoutingApp {
 
   lazy val supplyRoute = {
     get {
-      path("supply" / "ink") {
+      path("supply" / "food") {
         complete {
-          (inkActor ? GetInkSupply).mapTo[Int]
-            .map(s => s"The supply of the ink is $s")
+          (foodActor ? GetFoodSupply).mapTo[Int]
+            .map(s => s"The supply of the food is $s")
         }
       }
     }
   }
 
   startServer(interface = "localhost", port = 8080) {
-    printerRoute ~ supplyRoute
+    dwarfRoute ~ supplyRoute
   }
 
   class HelloActor extends Actor {
     override def receive = {
-      case ctx: RequestContext => ctx.complete("Welcome to the Land of PrinTers (LPT)!")
+      case ctx: RequestContext => ctx.complete("Welcome to the Land of Dwarfs!")
     }
   }
 
-  class InkActor extends Actor {
-    private val inkSupply = 10
+  class FoodActor extends Actor {
+    private val foodSupply = 10
 
     override def receive = {
-      case GetInkSupply => sender ! inkSupply
+      case GetFoodSupply => sender ! foodSupply
     }
   }
 
-  object GetInkSupply
+  object GetFoodSupply
 }

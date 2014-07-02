@@ -4,12 +4,11 @@ import akka.actor.ActorSystem
 import spray.routing._
 import com.softwaremill.spray._
 import spray.http.MediaTypes
-import com.softwaremill.spray.NeedlePrinter
 
 object Step3Complete extends App with SimpleRoutingApp {
   implicit val actorSystem = ActorSystem()
 
-  var plentyOfPrinters = Printer.somePrinters
+  var plentyOfDwarfs = Dwarf.someDwarfs
 
   def getJson(route: Route) = get {
     respondWithMediaType(MediaTypes.`application/json`) { route }
@@ -18,28 +17,28 @@ object Step3Complete extends App with SimpleRoutingApp {
   startServer(interface = "localhost", port = 8080) {
     get {
       path("hello") { ctx =>
-        ctx.complete("Welcome to the Land of PrinTers (LPT)!")
+        ctx.complete("Welcome to the Land of Dwarfs!")
       }
     } ~
     getJson {
       path("list" / "all") {
         complete {
-          Printer.toJson(plentyOfPrinters)
+          Dwarf.toJson(plentyOfDwarfs)
         }
       }
     } ~
     getJson {
-      path("printer" / IntNumber / "details") { index =>
+      path("dwarf" / IntNumber / "details") { index =>
         complete {
-          Printer.toJson(plentyOfPrinters(index))
+          Dwarf.toJson(plentyOfDwarfs(index))
         }
       }
     } ~
     post {
-      path("printer" / "add" / "needle") {
-        parameters("manufacturer"?, "pins".as[Int]) { (manufacturer, pins) =>
-          val newPrinter = NeedlePrinter(manufacturer.getOrElse("Epson"), pins)
-          plentyOfPrinters = newPrinter :: plentyOfPrinters
+      path("dwarf" / "add" / "mining") {
+        parameters("mineral"?, "gramsPerHour".as[Int]) { (mineral, gramsPerHour) =>
+          val newDwarf = MiningDwarf(mineral.getOrElse("silver"), gramsPerHour)
+          plentyOfDwarfs = newDwarf :: plentyOfDwarfs
           complete {
             "OK"
           }
