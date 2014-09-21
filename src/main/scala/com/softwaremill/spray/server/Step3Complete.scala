@@ -8,7 +8,7 @@ import spray.http.MediaTypes
 object Step3Complete extends App with SimpleRoutingApp {
   implicit val actorSystem = ActorSystem()
 
-  var plentyOfDwarfs = Dwarf.someDwarfs
+  var plentyOfSilicon = Silicon.silicons
 
   def getJson(route: Route) = get {
     respondWithMediaType(MediaTypes.`application/json`) { route }
@@ -17,28 +17,28 @@ object Step3Complete extends App with SimpleRoutingApp {
   startServer(interface = "localhost", port = 8080) {
     get {
       path("hello") { ctx =>
-        ctx.complete("Welcome to the Land of Dwarfs!")
+        ctx.complete("Welcome to the Silicon Valley!")
       }
     } ~
     getJson {
       path("list" / "all") {
         complete {
-          Dwarf.toJson(plentyOfDwarfs)
+          Silicon.toJson(plentyOfSilicon)
         }
       }
     } ~
     getJson {
-      path("dwarf" / IntNumber / "details") { index =>
+      path("silicon" / IntNumber / "details") { index =>
         complete {
-          Dwarf.toJson(plentyOfDwarfs(index))
+          Silicon.toJson(plentyOfSilicon(index))
         }
       }
     } ~
     post {
-      path("dwarf" / "add" / "mining") {
-        parameters("mineral"?, "gramsPerHour".as[Int]) { (mineral, gramsPerHour) =>
-          val newDwarf = MiningDwarf(mineral.getOrElse("silver"), gramsPerHour)
-          plentyOfDwarfs = newDwarf :: plentyOfDwarfs
+      path("silicon" / "add" / "mining") {
+        parameters("name"?, "grainSize".as[Int]) { (name, grainSize) =>
+          val newSilicon = MultiCrystalSilicon(name.getOrElse("Microcrystalline"), grainSize)
+          plentyOfSilicon = newSilicon :: plentyOfSilicon
           complete {
             "OK"
           }

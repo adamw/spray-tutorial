@@ -11,18 +11,18 @@ import scala.concurrent.duration._
 object Step4Complete extends App with SimpleRoutingApp {
   implicit lazy val actorSystem = ActorSystem()
 
-  var plentyOfDwarfs = Dwarf.someDwarfs
+  var plentyOfSilicon = Silicon.silicons
   implicit val timeout = Timeout(1.second)
   import actorSystem.dispatcher
 
   lazy val helloActor = actorSystem.actorOf(Props(new HelloActor()))
-  lazy val foodActor = actorSystem.actorOf(Props(new FoodActor()))
+  lazy val burnActor = actorSystem.actorOf(Props(new BurnActor()))
 
   def getJson(route: Route) = get {
     respondWithMediaType(MediaTypes.`application/json`) { route }
   }
 
-  lazy val dwarfRoute = {
+  lazy val siliconRoute = {
     get {
       path("hello") { ctx =>
         helloActor ! ctx
@@ -31,22 +31,22 @@ object Step4Complete extends App with SimpleRoutingApp {
     getJson {
       path("list" / "all") {
         complete {
-          Dwarf.toJson(plentyOfDwarfs)
+          Silicon.toJson(plentyOfSilicon)
         }
       }
     } ~
     getJson {
-      path("dwarf" / IntNumber / "details") { index =>
+      path("silicon" / IntNumber / "details") { index =>
         complete {
-          Dwarf.toJson(plentyOfDwarfs(index))
+          Silicon.toJson(plentyOfSilicon(index))
         }
       }
     } ~
     post {
-      path("dwarf" / "add" / "mining") {
-        parameters("mineral"?, "gramsPerHour".as[Int]) { (mineral, gramsPerHour) =>
-          val newDwarf = MiningDwarf(mineral.getOrElse("silver"), gramsPerHour)
-          plentyOfDwarfs = newDwarf :: plentyOfDwarfs
+      path("silicon" / "add" / "mining") {
+        parameters("name"?, "grainSize".as[Int]) { (name, grainSize) =>
+          val newSilicon = MultiCrystalSilicon(name.getOrElse("Microcrystalline"), grainSize)
+          plentyOfSilicon = newSilicon :: plentyOfSilicon
           complete {
             "OK"
           }
@@ -59,30 +59,30 @@ object Step4Complete extends App with SimpleRoutingApp {
     get {
       path("supply" / "food") {
         complete {
-          (foodActor ? GetFoodSupply).mapTo[Int]
-            .map(s => s"The supply of the food is $s")
+          (burnActor ? RemainingBurningTime).mapTo[Int]
+            .map(s => s"Your silicon will be ready in $s")
         }
       }
     }
   }
 
   startServer(interface = "localhost", port = 8080) {
-    dwarfRoute ~ supplyRoute
+    siliconRoute ~ supplyRoute
   }
 
   class HelloActor extends Actor {
     override def receive = {
-      case ctx: RequestContext => ctx.complete("Welcome to the Land of Dwarfs!")
+      case ctx: RequestContext => ctx.complete("Welcome to the Silicon Valley!")
     }
   }
 
-  class FoodActor extends Actor {
-    private val foodSupply = 10
+  class BurnActor extends Actor {
+    private val timeRemaining = 10
 
     override def receive = {
-      case GetFoodSupply => sender ! foodSupply
+      case RemainingBurningTime => sender ! timeRemaining
     }
   }
 
-  object GetFoodSupply
+  object RemainingBurningTime
 }

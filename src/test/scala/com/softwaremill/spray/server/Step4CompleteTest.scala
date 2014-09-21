@@ -8,8 +8,8 @@ class Step4CompleteTest extends FlatSpec with ShouldMatchers
   with ScalatestRouteTest with Directives {
 
   it should "work" in {
-    Get("/hello") ~> Step4Complete.dwarfRoute ~> check {
-      responseAs[String] should include ("Dwarf")
+    Get("/hello") ~> Step4Complete.siliconRoute ~> check {
+      responseAs[String] should include ("Silicon")
     }
   }
 }
