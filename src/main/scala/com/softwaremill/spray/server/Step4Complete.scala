@@ -55,9 +55,9 @@ object Step4Complete extends App with SimpleRoutingApp {
     }
   }
 
-  lazy val supplyRoute = {
+  lazy val burnRoute = {
     get {
-      path("supply" / "food") {
+      path("burn" / "remaining") {
         complete {
           (burnActor ? RemainingBurningTime).mapTo[Int]
             .map(s => s"Your silicon will be ready in $s")
@@ -67,7 +67,7 @@ object Step4Complete extends App with SimpleRoutingApp {
   }
 
   startServer(interface = "localhost", port = 8080) {
-    siliconRoute ~ supplyRoute
+    siliconRoute ~ burnRoute
   }
 
   class HelloActor extends Actor {
