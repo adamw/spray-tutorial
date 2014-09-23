@@ -11,11 +11,13 @@ import scala.concurrent.duration._
 
 object AkkaHttpPreview extends App {
   implicit val system = ActorSystem("ServerTest")
-  import com.softwaremill.spray.server.AkkaHttpPreview.system.dispatcher
+  import system.dispatcher
   implicit val materializer = FlowMaterializer()
 
   implicit val askTimeout: Timeout = 500.millis
-  val bindingFuture = (IO(Http) ? Http.Bind(interface = "localhost", port = 8080)).mapTo[Http.ServerBinding]
+  val bindingFuture = (IO(Http) ?
+    Http.Bind(interface = "localhost", port = 8080))
+    .mapTo[Http.ServerBinding]
 
   handleConnections(bindingFuture) withRoute {
     get {
