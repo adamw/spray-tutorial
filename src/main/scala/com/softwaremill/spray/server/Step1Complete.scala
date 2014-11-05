@@ -10,7 +10,7 @@ object Step1Complete extends App with SimpleRoutingApp {
     get {
       path("hello") {
         complete {
-          "Welcome to the Silicon Valley!"
+          "Welcome to Amber Gold!"
         }
       }
     }

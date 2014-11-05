@@ -23,7 +23,7 @@ object AkkaHttpPreview extends App {
     get {
       path("hello") {
         complete {
-          "Welcome to the Silicon Valley!"
+          "Welcome to Amber Gold!"
         }
       }
     }

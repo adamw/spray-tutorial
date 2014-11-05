@@ -11,18 +11,18 @@ import scala.concurrent.duration._
 object Step4Complete extends App with SimpleRoutingApp {
   implicit lazy val actorSystem = ActorSystem()
 
-  var plentyOfSilicon = Silicon.silicons
+  var plentyOfAmber = Amber.ambers
   implicit val timeout = Timeout(1.second)
   import actorSystem.dispatcher
 
   lazy val helloActor = actorSystem.actorOf(Props(new HelloActor()))
-  lazy val burnActor = actorSystem.actorOf(Props(new BurnActor()))
+  lazy val miningActor = actorSystem.actorOf(Props(new MiningActor()))
 
   def getJson(route: Route) = get {
     respondWithMediaType(MediaTypes.`application/json`) { route }
   }
 
-  lazy val siliconRoute = {
+  lazy val amberRoute = {
     get {
       path("hello") { ctx =>
         helloActor ! ctx
@@ -31,22 +31,22 @@ object Step4Complete extends App with SimpleRoutingApp {
     getJson {
       path("list" / "all") {
         complete {
-          Silicon.toJson(plentyOfSilicon)
+          Amber.toJson(plentyOfAmber)
         }
       }
     } ~
     getJson {
-      path("silicon" / IntNumber / "details") { index =>
+      path("amber" / IntNumber / "details") { index =>
         complete {
-          Silicon.toJson(plentyOfSilicon(index))
+          Amber.toJson(plentyOfAmber(index))
         }
       }
     } ~
     post {
-      path("silicon" / "add" / "mining") {
-        parameters("name"?, "grainSize".as[Int]) { (name, grainSize) =>
-          val newSilicon = MultiCrystalSilicon(name.getOrElse("Microcrystalline"), grainSize)
-          plentyOfSilicon = newSilicon :: plentyOfSilicon
+      path("amber" / "add" / "mined") {
+        parameters("country"?, "size".as[Int]) { (country, size) =>
+          val newAmber = MinedAmber(country.getOrElse("Estonia"), size)
+          plentyOfAmber = newAmber :: plentyOfAmber
           complete {
             "OK"
           }
@@ -55,34 +55,34 @@ object Step4Complete extends App with SimpleRoutingApp {
     }
   }
 
-  lazy val burnRoute = {
+  lazy val miningRoute = {
     get {
-      path("burn" / "remaining") {
+      path("mining" / "remaining") {
         complete {
-          (burnActor ? RemainingBurningTime).mapTo[Int]
-            .map(s => s"Your silicon will be ready in $s")
+          (miningActor ? RemainingMiningTime).mapTo[Int]
+            .map(s => s"Your amber will be mined in $s")
         }
       }
     }
   }
 
   startServer(interface = "localhost", port = 8080) {
-    siliconRoute ~ burnRoute
+    amberRoute ~ miningRoute
   }
 
   class HelloActor extends Actor {
     override def receive = {
-      case ctx: RequestContext => ctx.complete("Welcome to the Silicon Valley!")
+      case ctx: RequestContext => ctx.complete("Welcome to Amber Gold!")
     }
   }
 
-  class BurnActor extends Actor {
+  class MiningActor extends Actor {
     private val timeRemaining = 10
 
     override def receive = {
-      case RemainingBurningTime => sender ! timeRemaining
+      case RemainingMiningTime => sender ! timeRemaining
     }
   }
 
-  object RemainingBurningTime
+  object RemainingMiningTime
 }

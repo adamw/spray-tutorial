@@ -17,7 +17,7 @@ object ClientComplete extends App {
     println(s"Request completed with status ${response.status} and content:\n${response.entity.asString}")
   }
 
-  pipeline(Post("http://localhost:8080/silicon/add/multi?name=macro&grainSize=99"))
+  pipeline(Post("http://localhost:8080/amber/add/mined?country=Estonia&size=10"))
 
   Thread.sleep(1000L)
 
